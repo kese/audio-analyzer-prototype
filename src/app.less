@@ -1,0 +1,78 @@
+* { box-sizing: border-box; margin: 0 }
+
+section#menu { padding: 0.5rem; background: #eee; border-bottom: 0.125rem solid #666; }
+section#menu > button {
+  padding: 0.25rem 0.5rem;
+  border-radius: 0.75rem;
+  background: #777;
+  color: #fff;
+}
+section#menu > button + button { margin-left: 1rem; }
+section#menu > button:focus { outline: none; }
+section#menu > button:hover { cursor: pointer; background: #bbb }
+
+section#complete-time-domain {
+  padding: 0.5rem;
+  background: #cfcfcf;
+  height: 7rem;
+  border-top: 0.125rem solid #666;
+  border-bottom: 0.125rem solid #666;
+}
+
+section#selected-time-domain {
+  display: inline-block;
+  vertical-align: top;
+  padding: 0.5rem;
+  background: #e5e5e5;
+  height: 20rem;
+  border-bottom: 0.125rem solid #666;
+  width: 75%;
+}
+
+section#summary {
+  display: inline-block;
+  vertical-align: top;
+  padding: 0.5rem;
+  background: #e5e5e5;
+  height: 20rem;
+  border-bottom: 0.125rem solid #666;
+  width: 25%;
+}
+
+canvas {
+  width: 100%;
+  max-height: 25rem;
+  /*-webkit-filter: blur(0.125rem);*/
+}
+
+svg g { stroke-width: 0.125rem; stroke: #000;}
+
+svg path {
+  stroke: #000;
+  fill: none;
+  stroke-width: 0.05rem;
+}
+
+
+div.controls > p.option {
+    display: inline-block;
+    max-width: 33.33333%;
+    width: 30rem;
+    padding: 1rem 0.5rem;
+    & > * { display: inline-block;}
+    & > label { width: 20%; padding-right: 0.5rem }
+    & > input[type=range] { width: 65%  }
+    & > span.value { width: 15%; padding-left: 0.5rem }
+    & > label:after { content: ':' }
+}
+
+div.display > p.position {
+  max-width: 60rem
+  width: 100%;
+  padding: 1rem 0.5rem;
+  & > * { display: inline-block;}
+  & > label { padding-right: 0.5rem }
+  & > input[type=range] { max-width: 50rem; width: 100%;  }
+  & > span.value { padding-left: 0.5rem }
+  & > label:after { content: ':' }
+}

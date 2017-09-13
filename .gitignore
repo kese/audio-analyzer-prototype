@@ -1,0 +1,7 @@
+bak
+node_modules
+jspm_packages/*
+!jspm_packages/system.config.js
+lib
+pkg
+data

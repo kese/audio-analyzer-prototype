@@ -1,0 +1,48 @@
+{
+  "name": "audio-analyzer-prototype",
+  "version": "0.0.0",
+  "devDependencies": {
+    "babel-core": "~6.2",
+    "babel-preset-es2015": "~6.1",
+    "babel-preset-react": "~6.1",
+    "del": "^2.1.0",
+    "electron-prebuilt": "~0.35",
+    "electron-rebuild": "^1.0.2",
+    "gulp": "^3.9.0",
+    "gulp-babel": "~6.1",
+    "gulp-less": "^3.0.5",
+    "gulp-notify": "^2.2.0",
+    "gulp-plumber": "^1.0.1",
+    "gulp-rename": "^1.2.2",
+    "gulp-sourcemaps": "^1.6.0",
+    "gulp-util": "^3.0.7",
+    "gulp-watch": "^4.3.5",
+    "gulp-watch-less": "^1.0.1",
+    "jspm": "^0.16.14",
+    "lazypipe": "^1.0.1",
+    "run-sequence": "^1.1.4"
+  },
+  "main": "lib/main.js",
+  "scripts": {
+    "start-dev": "electron lib/main.js",
+    "start": "electron dist/main.js",
+    "build": "electron-packager . VisualizerPrototype --platform=linux,win32 --arch=x64,ia32 --version=0.34.3 --asar=true --overwrite=true --out=pkg --ignore=\"(pkg|node_modules)/\""
+  },
+  "jspm": {
+    "configFile": "jspm_packages/system.config.js",
+    "dependencies": {
+      "ampersand-events": "npm:ampersand-events@^1.1.1",
+      "chroma-js": "npm:chroma-js@^1.1.1",
+      "d3": "npm:d3@3.5.10",
+      "fft": "npm:fft@^0.2.1",
+      "fft-windowing": "npm:fft-windowing@^0.1.4",
+      "lodash": "npm:lodash@^3.10.1",
+      "ml-fft": "npm:ml-fft@^1.0.5",
+      "react": "npm:react@^0.14.2",
+      "react-dom": "npm:react-dom@^0.14.2",
+      "vinyl": "npm:vinyl@^1.1.0"
+    },
+    "devDependencies": {}
+  },
+  "dependencies": {}
+}

@@ -1,6 +1,6 @@
 import React from 'react'
 import ReactDOM from 'react-dom'
-import d3 from 'd3'
+import d3 from '../vendor/d3'
 import fft from 'fft'
 
 const d3svg = {

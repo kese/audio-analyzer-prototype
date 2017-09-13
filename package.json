@@ -33,7 +33,6 @@
     "dependencies": {
       "ampersand-events": "npm:ampersand-events@^1.1.1",
       "chroma-js": "npm:chroma-js@^1.1.1",
-      "d3": "npm:d3@3.5.10",
       "fft": "npm:fft@^0.2.1",
       "fft-windowing": "npm:fft-windowing@^0.1.4",
       "lodash": "npm:lodash@^3.10.1",

@@ -1,6 +1,6 @@
-const worker = {}
+export const worker = {}
 
-self.onmessage = function(message) {
+export function onMessage(message) {
     const { action, args } = message.data
     Promise.resolve(worker[action](...args))
         .catch(result => {
@@ -11,4 +11,4 @@ self.onmessage = function(message) {
         .then(self.postMessage)
 }
 
-export default worker
+self.onmessage = onMessage

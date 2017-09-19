@@ -1,13 +1,8 @@
 import { extend, range } from 'lodash'
-import worker from './worker'
+import { worker } from './worker'
 import FFT from './fft'
 
 const { POSITIVE_INFINITY: SUP, NEGATIVE_INFINITY: INF } = Number
-
-function chunkOffset(res, count, size, off) {
-    const r = (off * res) % count, o = ~~(off * size)
-    return 2 * r < count ? o : o + 1
-}
 
 // https://www.cds.caltech.edu/~murray/wiki/Why_is_dB_defined_as_20log_10%3F
 function toDecibels(val) {
@@ -23,23 +18,33 @@ function normalize(val, { dB, min, max }) {
     return (clip(v, min, max) - min) / (max - min)
 }
 
+function chunkOffset(len, res, size, off) {
+    const r = (off * len) % res, o = ~~(off * size)
+    return 2 * r < res ? o : o + 1
+}
+
+function autoSizeChunkScheme(baseRes, res, off, ext) {
+    if (res < ext) throw new Error('res must not be smaller then ext')
+    const size = baseRes / res
+    if (~~size === size)
+        return range(off, off + ext).map(o => [o * size, size])
+    const last = chunkOffset(baseRes, res, size, off + ext)
+    return range(off, off + ext)
+        .map(o => chunkOffset(baseRes, res, size, o))
+        .map((o, i, a) => [o, (a[i + 1] || last) - o])
+}
+
+function fixedSizeChunkScheme(baseRes, res, size, off, ext) {
+    const chunks = autoSizeChunkScheme(baseRes - size, res - 1, off, ext - 1)
+    chunks.push([chunks[ext - 2][0] + chunks[ext - 2][1]])
+    return chunks.map((([o]) => [o, size]))
+}
+
 export default extend(worker, {
 
-    autoSizedChunks(res, count, off = 0, ext = count) {
-        if (count < ext) throw new Error('count must not be smaller then ext')
-        const size = res / count
-        if (~~size === size)
-            return range(off, off + ext).map(o => [o * size, size])
-        const last = chunkOffset(res, count, size, off + ext)
-        return range(off, off + ext)
-            .map(o => chunkOffset(res, count, size, o))
-            .map((o, i, a) => [o, (a[i + 1] || last) - o])
-    },
-
-    distributedChunks(res, count, size, off = 0, ext = count) {
-        const chunks = this.autoSizedChunks(res - size, count - 1, off, ext - 1)
-        chunks.push([chunks[ext - 2][0] + chunks[ext - 2][1]])
-        return chunks.map((([o]) => [o, size]))
+    chunkScheme(baseRes, res, off = 0, ext = res, size) {
+        if (!size) return autoSizeChunkScheme(baseRes, res, off, ext)
+        return fixedSizeChunkScheme(baseRes, res, size, off, ext)
     },
 
     min(seq) {

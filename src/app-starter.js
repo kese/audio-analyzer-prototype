@@ -3,4 +3,6 @@ import './menu'
 import './dialog'
 import './file'
 import './audio'
-import './app'
+import app from './app'
+
+app.start()

@@ -1,22 +1,9 @@
-import { extend, memoize, partial } from 'lodash'
+import { extend, memoize, partial, once, throttle, debounce, defer } from 'lodash'
 import app from './app'
 import audioContext from './audio-context'
 
 app.on('fileLoaded', file => Audio.fromFile(file)
     .then(audio => app.trigger('audioLoaded', audio)))
-
-function setupSource(audio) {
-    const { context, buffer } = audio
-    const source = context.createBufferSource()
-    source.buffer = buffer
-    source.connect(context.destination)
-    source.onended = function() {
-        source.disconnect(context.destination)
-        setupSource(audio)
-    }
-    context.suspend()
-    source.start(0)
-}
 
 export default class Audio {
 
@@ -32,14 +19,60 @@ export default class Audio {
     constructor(buffer) {
         const data = memoize(partial(bufferData, buffer))
         const context = new AudioContext()
-        extend(this, { context, buffer, data })
-        setupSource(this)
+        extend(this, { context, buffer, data, paused: true })
+    }
+
+    stopSource() {}
+
+    preparePlayback(offset, extent) {
+
+        const { context, buffer } = this
+        this.stopSource()
+        this.pausePlayback()
+
+        const source = context.createBufferSource()
+        source.buffer = buffer
+        source.connect(context.destination)
+        this.stopSource = once(() => {
+            source.stop()
+            source.disconnect(context.destination)
+        })
+
+        const offTime = offset * buffer.duration
+        const extTime = extent * buffer.duration
+        const startTime = context.currentTime - offTime
+
+        this.onPlayback = throttle(() => {
+            this.update({ position: context.currentTime - startTime })
+            if (!this.paused) requestAnimationFrame(() => this.onPlayback())
+        }, 500)
+
+        source.onended = () => {
+            this.pausePlayback()
+            this.preparePlayback(offset, extent)
+        }
+        source.start(0, offTime, extTime)
+        context.suspend()
+        extend(this, { source })
+    }
+
+
+
+    resumePlayback() {
+        this.paused = false
+        this.context.resume()
+        this.onPlayback()
+    }
+
+    pausePlayback() {
+        this.paused = true
+        this.context.suspend()
     }
 
     togglePlayback() {
         switch(this.context.state) {
-            case 'suspended': return this.context.resume()
-            case 'running': return this.context.suspend()
+            case 'suspended': return this.resumePlayback()
+            case 'running': return this.pausePlayback()
             case 'closed':
             default: throw new Error('context neither suspended nor running')
         }

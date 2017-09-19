@@ -1,4 +1,4 @@
-import { ipc } from './electron'
+import { ipc, path } from './electron'
 import _ from 'lodash'
 import React from 'react'
 import ReactDOM from 'react-dom'
@@ -10,88 +10,27 @@ Events.enhance(React.Component)
 
 class App extends React.Component {
 
-    componentWillMount() {
-        this.setState({})
+    shouldComponentUpdate({ audio }, nextState) {
+        return audio !== this.props.audio
     }
 
-    shouldComponentUpdate(props, state) {
-        return !!state.audio && state.audio !== this.state.audio
+    componentWillReceiveProps() {
+        if (this.props.audio) this.props.audio.shutdown()
     }
 
     render() {
-        const { audio } = this.state
-        if (!audio) return (<div>Please open an audio file...</div>)
-        return (<AudioDisplay audio={audio} />)
+        if (!this.props.audio)
+            return (<div className={'start'}><span className={'msg'}>Right click to open an audio file...</span></div>)
+        return (<AudioDisplay audio={this.props.audio} />)
     }
 }
 
-const app = ReactDOM.render(<App/>, document.querySelector('#app'))
+const container = document.querySelector('#app')
+const app = ReactDOM.render(<App/>, container)
 export default app
 
-app.on('audioLoaded', audio => {
-
-    if (app.state.audio) app.state.audio.shutdown()
-
-    app.setState({ audio })
-
-    console.log('onAudioLoaded', audio)
-
-    /*const logParams = {
-        channelMask: 3,
-        chunkSize: 256,
-        chunkCount: 500,
-        dB: true,
-        min: -100,
-        max: 0
-    }
-
-    const params = {
-        channelMask: 3,
-        chunkSize: 256,
-        chunkCount: 500,
-        dB: false,
-        min: 0,
-        max: 1
-    }
-
-    const peakLevels = new PeakLevelsAnalyser(audio, logParams)
-    const rmsLevels = new RmsLevelsAnalyser(audio, logParams)
-    const freqSpectra = new FreqSpectraAnalyser(audio, logParams)
-
-    Promise.join(peakLevels.seq(0, 500), rmsLevels.seq(0, 500), freqSpectra.seq(0, 500))
-        .then(([peakLevels, rmsLevels, freqSpectra]) =>
-            app.setState({ peakLevels, rmsLevels, freqSpectra }))*/
-
-})
-/*
-function togglePlayback() {
-    const { audio } = app.state
-    audio.togglePlayback()
-
-    const playback = app.state.playback === 'Play' ? 'Stop' : 'Play'
-
-    audio.togglePlayback
-
-    let offset = 0
-    let paused = true
-    let delta = 5
-    function render() {
-       if (paused || offset === 500 - 256) return
-       Promise.join(
-               peakLevels.seq(offset, 256),
-               rmsLevels.seq(offset, 256),
-               freqSpectra.seq(offset, 256)
-           )
-           .then(([peakLevels, rmsLevels, freqSpectra]) =>
-               app.setState({ peakLevels, rmsLevels, freqSpectra }))
-
-        offset += delta
-        if (!paused) setTimeout(() => requestAnimationFrame(render), 100)
-     }
-
-     const toggle = function() {
-         paused = !paused
-         if (!paused) requestAnimationFrame(render)
-     }
-}
-*/
+app.on('audioLoaded', audio => ReactDOM.render(<App audio={audio}/>, container))
+app.start = () => {}
+ //
+// app.start = () =>
+//     app.trigger('loadFile', path.resolve('./data/daten_frequencyshift.wav'))

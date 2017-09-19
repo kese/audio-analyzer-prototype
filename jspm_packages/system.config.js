@@ -12,6 +12,7 @@ System.config({
     "chroma-js": "npm:chroma-js@1.1.1",
     "fft": "npm:fft@0.2.1",
     "fft-windowing": "npm:fft-windowing@0.1.4",
+    "interact.js": "npm:interact.js@1.2.8",
     "lodash": "npm:lodash@3.10.1",
     "ml-fft": "npm:ml-fft@1.0.5",
     "react": "npm:react@0.14.3",

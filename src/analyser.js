@@ -2,6 +2,7 @@ import { extend, flatten, range } from 'lodash'
 import WorkerProxy from './worker-proxy'
 import worker from './analyser-worker'
 
+
 class AnalyserWorkerProxy extends WorkerProxy {
 
     static get scriptURL() { return 'analyser-worker-loader.js' }
@@ -13,11 +14,7 @@ class AnalyserWorkerProxy extends WorkerProxy {
 
 const proxy = AnalyserWorkerProxy.create()
 const { workerCount } = AnalyserWorkerProxy
-
-function chunksScheme(off, ext, length, params) {
-    const { chunkSize: size, chunkCount: count } = params
-    return proxy.distributedChunks(length, count, size, off, ext)
-}
+const { chunkScheme } = proxy
 
 class Analyser {
 
@@ -27,20 +24,20 @@ class Analyser {
 
     seq(off, ext) {
 
-        const { audio: { buffer: { length }, data }, values, params } = this
-        const { chunkCount, channelMask } = params
+        const { audio, values, params } = this
+        const { chunkCount, channelMask, chunkSize } = params
 
         if (off + ext > chunkCount) throw new Error('interval out of range')
 
         const chunkBinCount = Math.min(workerCount, ext)
-        const allChunks = chunksScheme(off, ext, length, params)
+        const allChunks = chunkScheme(audio.buffer.length, chunkCount, off, ext, chunkSize)
         const filteredChunks = allChunks.then(chunks =>
             chunks.filter(([o]) => !values.has(o)))
 
-        return Promise.join(filteredChunks, data(channelMask))
+        return Promise.join(filteredChunks, audio.data(channelMask))
             .then(([chunks, data]) => Promise.join(
                 chunks.map(([o, e]) => data.slice(o, o + e)),
-                proxy.autoSizedChunks(chunks.length, chunkBinCount)
+                chunkScheme(chunks.length, chunkBinCount)
             ))
             .then(([chunks, chunkBins]) => Promise.all(
                 chunkBins.map(([o, e]) => range(o, o + e).map(i => chunks[i]))

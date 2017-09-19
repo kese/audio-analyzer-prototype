@@ -1,6 +1,6 @@
 {
   "name": "audio-analyzer-prototype",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "author": "Sebastian Kehr",
   "description": "proof of concept application for analyzing audio files",
   "devDependencies": {
